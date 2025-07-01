@@ -1,0 +1,126 @@
+﻿using ElectronicsStore.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+using System.IO;
+
+namespace ElectronicsStore.Views
+{
+    /// <summary>
+    /// Логика взаимодействия для CartView.xaml
+    /// </summary>
+    public partial class CartView : Page
+    {
+        private List<Product> _allProducts;
+        private List<Product> _cartProducts = new List<Product>();
+        private string _username;
+
+        public CartView(string username)
+        {
+            InitializeComponent();
+            _username = username;
+            LoadAllProducts();
+            LoadCartProducts();
+            UpdateCartSummary();
+        }
+
+        private void LoadAllProducts()
+        {
+            _allProducts = new List<Product>
+            {
+                new Product { Id = 1, Name = "Ноутбук ASUS ROG", Price = 696.96, ImagePath = "pack://application:,,,/images/laptop.jpg" },
+                new Product { Id = 2, Name = "Смартфон iPhone 13", Price = 799.99, ImagePath = "pack://application:,,,/images/phone.jpg" },
+                new Product { Id = 3, Name = "Наушники Sony WH-1000XM4", Price = 349.98, ImagePath = "pack://application:,,,/images/headphones.jpg" },
+                new Product { Id = 4, Name = "Монитор Dell 27\"", Price = 255.19, ImagePath = "pack://application:,,,/images/monitor.jpg" },
+                new Product { Id = 5, Name = "Клавиатура Logitech MX Keys", Price = 99.99, ImagePath = "pack://application:,,,/images/keyboard.jpg" },
+                new Product { Id = 6, Name = "Мышь Razer DeathAdder", Price = 69.25, ImagePath = "pack://application:,,,/images/mouse.jpg" },
+                new Product { Id = 7, Name = "Планшет Samsung Galaxy Tab S7", Price = 649.11, ImagePath = "pack://application:,,,/images/tablet.jpg" },
+                new Product { Id = 8, Name = "Фитнес-браслет Xiaomi Mi Band 6", Price = 49.10, ImagePath = "pack://application:,,,/images/band.jpg" },
+                new Product { Id = 9, Name = "SSD Samsung 980 Pro 1TB", Price = 149.34, ImagePath = "pack://application:,,,/Images/ssd.jpg" },
+                new Product { Id = 10, Name = "Жесткий диск Seagate BarraCuda 2TB", Price = 69.99, ImagePath = "pack://application:,,,/Images/hdd.jpg", },
+                new Product { Id = 11, Name = "Материнская плата ASUS ROG Strix B550-F", Price = 189.99, ImagePath = "pack://application:,,,/Images/motherboard.jpg", },
+                new Product { Id = 12, Name = "Блок питания Corsair RM750x 750W", Price = 129.49, ImagePath = "pack://application:,,,/Images/psu.jpg",  },
+                new Product { Id = 13, Name = "Корпус NZXT H510 Black", Price = 89.99, ImagePath = "pack://application:,,,/Images/case.jpg", },
+                new Product { Id = 14, Name = "Охлаждение CPU Noctua NH-D15", Price = 91.19, ImagePath = "pack://application:,,,/Images/cooler.jpg",  },
+                new Product { Id = 15, Name = "Оперативная память Corsair Vengeance 32GB", Price = 129.1, ImagePath = "pack://application:,,,/Images/ram.jpg",  },
+                new Product { Id = 16, Name = "Веб-камера Logitech C920 HD Pro", Price = 79.46, ImagePath = "pack://application:,,,/Images/webcam.jpg", },
+                new Product { Id = 17, Name = "Микрофон Blue Yeti Blackout", Price = 129.23, ImagePath = "pack://application:,,,/Images/mic.jpg",  },
+                new Product { Id = 18, Name = "Игровой коврик Razer Goliathus Extended", Price = 15.69, ImagePath = "pack://application:,,,/Images/mat.jpg", },
+                new Product { Id = 19, Name = "МФУ HP LaserJet Pro MFP", Price = 288.69, ImagePath = "pack://application:,,,/Images/printer.jpg", },
+                new Product { Id = 20, Name = "Роутер ASUS RT-AX86U", Price = 249.99, ImagePath = "pack://application:,,,/Images/router.jpg", },
+                new Product { Id = 21, Name = "Оперативная память Fujitsu RAM DDR4", Price = 120.94, ImagePath = "pack://application:,,,/Images/ram1.jpg",  },
+                new Product { Id = 22, Name = "Ноутбук honor magixbook", Price = 884.919, ImagePath = "pack://application:,,,/images/laptop1.jpg" },
+                new Product { Id = 23, Name = "Смартфон xiaomi redmi note 14", Price = 359.39, ImagePath = "pack://application:,,,/images/phone1.jpg" },
+                new Product { Id = 24, Name = "Клавиатура redsquare rgb", Price = 59.59, ImagePath = "pack://application:,,,/images/keyboard1.jpg" },
+            };
+        }
+
+        private void LoadCartProducts()
+        {
+            _cartProducts.Clear();
+
+            string cartFilePath = $"{_username}_cart.txt";
+
+            if (File.Exists(cartFilePath))
+            {
+                string[] productIds = File.ReadAllText(cartFilePath).Split(',');
+
+                foreach (string idStr in productIds)
+                {
+                    if (int.TryParse(idStr, out int id))
+                    {
+                        var product = _allProducts.FirstOrDefault(p => p.Id == id);
+                        if (product != null)
+                        {
+                            _cartProducts.Add(product);
+                        }
+                    }
+                }
+            }
+
+            CartItemsControl.ItemsSource = _cartProducts;
+        }
+
+        private void UpdateCartSummary()
+        {
+            ItemsCountText.Text = _cartProducts.Count.ToString();
+            TotalPriceText.Text = _cartProducts.Sum(p => p.Price).ToString("C");
+        }
+
+
+
+
+
+
+        private void RemoveFromCartButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = (Button)sender;
+            int productId = (int)button.Tag;
+
+            string cartFilePath = $"{_username}_cart.txt";
+
+            if (File.Exists(cartFilePath))
+            {
+                List<string> productIds = File.ReadAllText(cartFilePath).Split(',').ToList();
+                productIds.Remove(productId.ToString());
+                File.WriteAllText(cartFilePath, string.Join(",", productIds));
+            }
+
+            LoadCartProducts();
+            UpdateCartSummary();
+
+            MessageBox.Show("Товар удален из корзины!", "Успешно", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+    }
+}
