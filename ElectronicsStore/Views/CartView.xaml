@@ -14,7 +14,7 @@
                 <TextBlock Text="Товаров в корзине: " Foreground="White" FontSize="16"/>
                 <TextBlock x:Name="ItemsCountText" Text="0" Foreground="#FF007ACC" FontSize="16" FontWeight="Bold"/>
                 <TextBlock Text="  |  Общая стоимость: " Foreground="White" FontSize="16" Margin="10,0,0,0"/>
-                <TextBlock x:Name="TotalPriceText" Text="$0.00" Foreground="#FF007ACC" FontSize="16" FontWeight="Bold"/>
+                <TextBlock x:Name="TotalPriceText" Text="Р 0.00" Foreground="#FF007ACC" FontSize="16" FontWeight="Bold"/>
             </StackPanel>
         </Border>
 
